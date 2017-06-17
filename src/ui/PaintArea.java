@@ -1,5 +1,6 @@
 package ui;
 
+import utils.Pair;
 import utils.Tools;
 
 import javax.swing.*;
@@ -8,14 +9,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class PaintArea extends JPanel {
-
-    private ArrayList<Integer[]> digitVector;
-    double[] res;
     private MainFrame parent;
-    boolean draw = false;
+    private ArrayList<Pair<Integer, Integer>> digitVector;
+    private ArrayList<Pair<Integer, Integer>> resArr;
+    private boolean paint = false;
 
     public PaintArea(MainFrame parent){
         this.parent = parent;
@@ -31,11 +30,13 @@ public class PaintArea extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        //if (!draw)
-        digitVector.forEach(i -> g.drawRect(i[0], i[1], 1,1));
-        //else
-         //   draw(g, res);
-
+        if (!paint) {
+            digitVector.forEach(i -> g.drawRect(i.getX(), 100 - i.getY(), 1, 1));
+        } else{
+            resArr.forEach(i -> g.drawRect(i.getX(), 100 - i.getY(), 1, 1));
+            paint = false;
+            digitVector.clear();
+        }
     }
 
     private void initListeners(){
@@ -44,7 +45,9 @@ public class PaintArea extends JPanel {
             public void mouseDragged(MouseEvent e) {
                 Point point = getMousePosition();
                 if (point != null){
-                    digitVector.add(new Integer[]{point.x, point.y});
+                    Pair<Integer, Integer> coordinates = Pair.createPair(point.x, 100 - point.y);
+                    if (!digitVector.contains(coordinates))
+                        digitVector.add(coordinates);
                 }
                 repaint();
             }
@@ -58,7 +61,6 @@ public class PaintArea extends JPanel {
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
             }
 
             @Override
@@ -68,15 +70,21 @@ public class PaintArea extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                //TODO
-                double[] x = Tools.compressVector(digitVector);
-                res = x;
-                System.out.println(Arrays.toString(x));
-                int result = parent.network.recognize(x);
-                parent.paintResult.setText(parent.paintResult.getText() + " " + result);
-                digitVector.clear();
-                draw = true;
-                repaint();
+                if (digitVector.size() > 8) {
+                    resArr = Tools.compressVector(digitVector);
+                    double[] arr = new double[resArr.size()*2];
+                    int count = 0;
+                    for (int i = 0; i < arr.length; i+=2) {
+                        arr[i] = resArr.get(count).getX();
+                        arr[i+1] = resArr.get(count++).getY();
+                    }
+                    int result = parent.network.recognize(arr);
+                    parent.paintResult.setText("Result = " + result);
+                    paint = true;
+                    repaint();
+                }else {
+                    JOptionPane.showMessageDialog(parent, "Please draw number again");
+                }
             }
 
             @Override
@@ -91,14 +99,14 @@ public class PaintArea extends JPanel {
         });
     }
 
-    public void draw(Graphics g, double[] x) {
-        double [] number = x;
-        int prevX = (int) number[0];
-        int prevY = (int) number[1];
+    public void drawLines(Graphics g) {
+        double[] number = new double[1];
+        int prevX = (int)number[0];
+        int prevY = (int)number[1];
         for (int i = 2; i < number.length; i+=2) {
             Graphics2D g2 = (Graphics2D) g;
             g2.setStroke(new BasicStroke(3));
-            g2.drawLine(prevX, getHeight() - prevY, (int)number[i], (int)(getHeight() - (number[i+1])));
+            g2.drawLine((int)prevX, getHeight() - prevY, (int)number[i], (int)(getHeight() - (number[i+1])));
             //g.drawRect(number[i], getHeight() - (number[i+1] +22), 1,1);
             prevX = (int)number[i];
             prevY = (int)number[i+1];

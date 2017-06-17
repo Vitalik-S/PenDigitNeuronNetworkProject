@@ -1,15 +1,14 @@
 package ui;
 
 import Network.Network;
-import utils.FileReader;
+import utils.Tools;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class MainFrame extends JFrame{
+
     public Network network;
     public JLabel paintResult;
     public JLabel testingResult;
@@ -40,7 +39,7 @@ public class MainFrame extends JFrame{
         JButton runTestButton = new JButton("Run \"pendigits.tes\"");
         runTestButton.addActionListener(e -> {
             try {
-                double[][] input = FileReader.readFromFile("res/pendigits.tes");
+                double[][] input = Tools.readFromFile("res/pendigits.tes");
                 String output = network.testData(input);
                 testingResult.setText(testingResult.getText() + "\n" + output);
             } catch (IOException e1) {
@@ -64,7 +63,7 @@ public class MainFrame extends JFrame{
         JPanel drawPanel = new JPanel();
         drawPanel.add(new PaintArea(this), "Center");
         paintPanel.add(drawPanel, "Center");
-        this.paintResult = new JLabel("Result = ");
+        this.paintResult = new JLabel("");
         paintPanel.add(this.paintResult, "South");
         return paintPanel;
     }

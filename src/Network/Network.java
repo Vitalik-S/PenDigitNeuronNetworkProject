@@ -1,6 +1,6 @@
 package Network;
 
-import utils.FileReader;
+import utils.Tools;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class Network {
         }
 
 
-        double[][] inputData = FileReader.readFromFile("res/pendigits.tra");
+        double[][] inputData = Tools.readFromFile("res/pendigits.tra");
         teachNetwork(inputData, Correct_Output.getOutputExpect());
     }
 
