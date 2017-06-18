@@ -1,13 +1,11 @@
 package Network;
 
+import ui.LoadingDialog;
 import utils.Tools;
+import utils.WorkFinishedCallback;
 
-import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * Created by Vitalij on 15.06.17.
- */
 public class Network {
 
    private static Neuron[] layer1;
@@ -20,26 +18,32 @@ public class Network {
      * @param inputDataLength The length of the input vector in each neuron
      * of each layer
      */
-    public Network(int[] neuronOnLayer, int[] inputDataLength) throws IOException {
+    public Network(int[] neuronOnLayer, int[] inputDataLength, WorkFinishedCallback callback){
+        try {
+            layer1 = new Neuron[neuronOnLayer[0]];
+            layer2 = new Neuron[neuronOnLayer[1]];
+            layer3 = new Neuron[neuronOnLayer[2]];
 
-        layer1 = new Neuron[neuronOnLayer[0]];
-        layer2 = new Neuron[neuronOnLayer[1]];
-        layer3 = new Neuron[neuronOnLayer[2]];
 
+            for (int i = 0; i < layer1.length; i++) {
+                layer1[i] = new Neuron(inputDataLength[0]);
+            }
+            for (int i = 0; i < layer2.length; i++) {
+                layer2[i] = new Neuron(inputDataLength[1]);
+            }
+            for (int i = 0; i < layer3.length; i++) {
+                layer3[i] = new Neuron(inputDataLength[2]);
+            }
 
-        for (int i = 0; i < layer1.length; i++) {
-            layer1[i] = new Neuron(inputDataLength[0]);
+            double[][] inputData = Tools.readFromFile("res/pendigits.tra");
+            LoadingDialog.changeBarValue(10);
+
+            teachNetwork(inputData, Correct_Output.getOutputExpect());
+        }catch (Exception e){
+            e.printStackTrace();
+            callback.onError(e.getMessage());
         }
-        for (int i = 0; i < layer2.length; i++) {
-            layer2[i] = new Neuron(inputDataLength[1]);
-        }
-        for (int i = 0; i < layer3.length; i++) {
-            layer3[i] = new Neuron(inputDataLength[2]);
-        }
-
-
-        double[][] inputData = Tools.readFromFile("res/pendigits.tra");
-        teachNetwork(inputData, Correct_Output.getOutputExpect());
+        callback.onFinish(this);
     }
 
 
@@ -56,7 +60,7 @@ public class Network {
         double[] output3Layer = new double[layer3.length];
 
         for (int k = 0; k < 30; k ++) {
-
+            LoadingDialog.changeBarValue(LoadingDialog.getBarValue() + 3);
             //random data set
      /*       for (int i = 0; i < inputData.length; i++) {
                 int index = (int)(Math.random()*inputData.length);
