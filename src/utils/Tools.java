@@ -70,6 +70,13 @@ public class Tools {
             }
         }
         System.out.println(compressedVector.size());
+
+        int i = 1;
+        while(compressedVector.size() < 8){
+            compressedVector.add(expandedPoints.get(expandedPoints.size()-i));
+            i++;
+        }
+
         return compressedVector;
     }
 
@@ -118,5 +125,15 @@ public class Tools {
             tmpPoint = currPoint;
         }
         return digitLength;
+    }
+
+    public static double[] listToDoubleArr(ArrayList<Pair<Integer, Integer>> vector){
+        double[] arr = new double[vector.size()*2];
+        int count = 0;
+        for (int i = 0; i < arr.length; i+=2) {
+            arr[i] = vector.get(count).getX();
+            arr[i+1] = vector.get(count++).getY();
+        }
+        return arr;
     }
 }

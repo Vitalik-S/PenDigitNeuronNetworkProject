@@ -14,7 +14,6 @@ public class PaintArea extends JPanel {
     private MainFrame parent;
     private ArrayList<Pair<Integer, Integer>> digitVector;
     private ArrayList<Pair<Integer, Integer>> resArr;
-    private boolean paint = false;
 
     public PaintArea(MainFrame parent){
         this.parent = parent;
@@ -30,13 +29,7 @@ public class PaintArea extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (!paint) {
-            digitVector.forEach(i -> g.drawRect(i.getX(), 100 - i.getY(), 1, 1));
-        } else{
-            resArr.forEach(i -> g.drawRect(i.getX(), 100 - i.getY(), 1, 1));
-            paint = false;
-            digitVector.clear();
-        }
+        digitVector.forEach(i -> g.drawRect(i.getX(), 100 - i.getY(), 1, 1));
     }
 
     private void initListeners(){
@@ -53,34 +46,23 @@ public class PaintArea extends JPanel {
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {
-
-            }
+            public void mouseMoved(MouseEvent e) {}
         });
 
         addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-            }
+            public void mouseClicked(MouseEvent e) {}
 
             @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
+            public void mousePressed(MouseEvent e) {}
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (digitVector.size() > 8) {
                     resArr = Tools.compressVector(digitVector);
-                    double[] arr = new double[resArr.size()*2];
-                    int count = 0;
-                    for (int i = 0; i < arr.length; i+=2) {
-                        arr[i] = resArr.get(count).getX();
-                        arr[i+1] = resArr.get(count++).getY();
-                    }
-                    int result = parent.network.recognize(arr);
+                    int result = parent.network.recognize(Tools.listToDoubleArr(resArr));
                     parent.paintResult.setText("Result = " + result);
-                    paint = true;
+                    digitVector.clear();
                     repaint();
                 }else {
                     JOptionPane.showMessageDialog(parent, "Please draw number again");
@@ -88,14 +70,10 @@ public class PaintArea extends JPanel {
             }
 
             @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
+            public void mouseExited(MouseEvent e) {}
         });
     }
 

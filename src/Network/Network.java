@@ -41,7 +41,9 @@ public class Network {
             teachNetwork(inputData, Correct_Output.getOutputExpect());
         }catch (Exception e){
             e.printStackTrace();
-            callback.onError(e.getMessage());
+            callback.onError(e.toString());
+            LoadingDialog.hide();
+            return;
         }
         callback.onFinish(this);
     }
